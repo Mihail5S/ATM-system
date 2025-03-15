@@ -1,6 +1,5 @@
 package ConsoleInterface.Commands;
 
-import Model.BankAccount;
 import Service.BankAccountService;
 import repository.BankAccountRepository;
 import repository.UserRepository;
@@ -50,15 +49,11 @@ public class CreateBankAccountCommand implements IConsoleCommand {
 
         var user = userRepository.findByLogin(login);
         if (user != null) {
-            BankAccount bankAccount = new BankAccountService().AddBankAccount(user);
-            if (bankAccount != null) {
-                if (bankAccountRepository.TryAdd(bankAccount)) {
-                    System.out.println("Счет создан! ID: " + bankAccount.getId());
-                    System.out.println("ID обладеля: " + bankAccount.getOwnerLogin());
-                } else {
-                    System.out.println("Ошибка!");
-                }
-            } else {
+            boolean bankAccount = new BankAccountService(bankAccountRepository).TryAddBankAccount(user);
+            if (bankAccount) {
+                    System.out.println("Счет создан!");
+            }
+             else {
                 System.out.println("Не удалось создать счет!");
             }
         } else {

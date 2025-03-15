@@ -2,6 +2,7 @@ package ConsoleInterface.Commands;
 
 import Model.BankAccount;
 import Model.User;
+import Service.BankAccountService;
 import Service.TransactionService;
 import repository.BankAccountRepository;
 import repository.UserRepository;
@@ -61,7 +62,7 @@ public class TransferCommand implements IConsoleCommand {
 
         System.out.print("Введите ID счета отправителя: ");
         String senderAccountId = scanner.nextLine();
-        BankAccount senderAccount = bankAccountRepository.findById(senderAccountId);
+        BankAccount senderAccount = new BankAccountService(bankAccountRepository).FindById(senderAccountId);
         if (senderAccount == null || !senderAccount.getOwnerLogin().equals(senderLogin)) {
             System.out.println("Ошибка! Счет отправителя не найден или не принадлежит пользователю.");
             return;
@@ -78,7 +79,7 @@ public class TransferCommand implements IConsoleCommand {
 
         System.out.print("Введите ID счета получателя: ");
         String receiverAccountId = scanner.nextLine();
-        BankAccount receiverAccount = bankAccountRepository.findById(receiverAccountId);
+        BankAccount receiverAccount = new BankAccountService(bankAccountRepository).FindById(receiverAccountId);
         if (receiverAccount == null) {
             System.out.println("Ошибка! Счет получателя не найден.");
             return;

@@ -2,6 +2,7 @@ package ConsoleInterface.Commands;
 
 import Model.User;
 import Service.FriendService;
+import Service.UserService;
 import repository.UserRepository;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class FriendCommand implements IConsoleCommand {
     public void execute() {
         System.out.print("Введите логин пользователя: ");
         String userLogin = scanner.nextLine();
-        User user = userRepository.findByLogin(userLogin);
+        User user = new UserService(userRepository).FindUserByLogin(userLogin);
         if (user == null) {
             System.out.println("Ошибка! Пользователь не найден.");
             return;
@@ -85,7 +86,7 @@ public class FriendCommand implements IConsoleCommand {
     private void addFriend(User user) {
         System.out.print("Введите логин друга: ");
         String friendLogin = scanner.nextLine();
-        User friend = userRepository.findByLogin(friendLogin);
+        User friend = new UserService(userRepository).FindUserByLogin(friendLogin);
 
         if (friend == null) {
             System.out.println("Ошибка! Друг не найден.");
@@ -112,7 +113,7 @@ public class FriendCommand implements IConsoleCommand {
     private void removeFriend(User user) {
         System.out.print("Введите логин друга: ");
         String friendLogin = scanner.nextLine();
-        User friend = userRepository.findByLogin(friendLogin);
+        User friend = new UserService(userRepository).FindUserByLogin(friendLogin);
 
         if (friend == null) {
             System.out.println("Ошибка! Друг не найден.");

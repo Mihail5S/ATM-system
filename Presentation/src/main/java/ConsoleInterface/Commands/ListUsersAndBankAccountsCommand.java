@@ -2,6 +2,7 @@ package ConsoleInterface.Commands;
 
 import Model.BankAccount;
 import Model.User;
+import Service.UserService;
 import repository.UserRepository;
 
 /**
@@ -35,7 +36,8 @@ public class ListUsersAndBankAccountsCommand implements IConsoleCommand {
     @Override
     public void execute() {
         System.out.println("Список пользователей и их банковских счетов:");
-        for (User user : userRepository.getAllUsers()) {
+        UserService userService = new UserService(userRepository);
+        for (User user : userService.GetAllUsers()) {
             System.out.println("👤 " + user.getLogin());
             if (user.getBankAccounts().isEmpty()) {
                 System.out.println("   ❌ Нет счетов");

@@ -2,6 +2,8 @@ package Service;
 
 import Model.BankAccount;
 import Model.User;
+import repository.BankAccountRepository;
+import repository.UserRepository;
 
 import java.util.List;
 
@@ -21,20 +23,25 @@ import java.util.List;
  * </pre>
  */
 public class BankAccountService {
+    private final BankAccountRepository bankAccountRepository;
 
+    public BankAccountService(BankAccountRepository bankAccountRepository) {
+        this.bankAccountRepository = bankAccountRepository;
+    }
     /**
      * Добавляет новый банковский счет пользователю.
      *
      * @param user пользователь, для которого создается банковский счет
      * @return объект {@link BankAccount} нового банковского счета, или {@code null}, если пользователь равен {@code null}.
      */
-    public BankAccount AddBankAccount(User user) {
+    public boolean TryAddBankAccount(User user) {
         if (user == null) {
-            return null;
+            return false;
         }
         BankAccount account = new BankAccount(user.getLogin());
         user.getBankAccounts().add(account);
-        return account;
+        bankAccountRepository.TryAdd(account);
+        return bankAccountRepository.TryAdd(account);
     }
 
     /**
@@ -56,6 +63,24 @@ public class BankAccountService {
         }
 
         accounts.remove(account);
+        bankAccountRepository.TryDelete(account.getId());
         return true;
+    }
+
+    /**
+     * Находит банковский счет по его идентификатору.
+     * @param id идентификатор счета
+     * @return объект BankAccount или null, если счет не найден
+     */
+    public BankAccount FindById(String id) {
+        return bankAccountRepository.findById(id);
+    }
+
+    /**
+     * Получает список всех пользователей.
+     * @return список пользователей
+     */
+    public List<BankAccount> GetAllBankAccounts() {
+        return bankAccountRepository.getAllAccounts();
     }
 }

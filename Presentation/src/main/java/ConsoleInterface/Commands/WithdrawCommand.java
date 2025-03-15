@@ -2,6 +2,8 @@ package ConsoleInterface.Commands;
 
 import Model.BankAccount;
 import Model.User;
+import Service.BankAccountService;
+import Service.UserService;
 import repository.BankAccountRepository;
 import repository.UserRepository;
 
@@ -49,7 +51,7 @@ public class WithdrawCommand implements IConsoleCommand {
         System.out.print("Введите логин пользователя: ");
         String login = scanner.nextLine();
 
-        User user = userRepository.findByLogin(login);
+        User user = new UserService(userRepository).FindUserByLogin(login);
         if (user == null) {
             System.out.println("Ошибка! Пользователь не найден.");
             return;
@@ -57,7 +59,7 @@ public class WithdrawCommand implements IConsoleCommand {
 
         System.out.print("Введите ID счета: ");
         String accountId = scanner.nextLine();
-        BankAccount account = bankAccountRepository.findById(accountId);
+        BankAccount account = new BankAccountService(bankAccountRepository).FindById(accountId);
         if (account == null || !account.getOwnerLogin().equals(login)) {
             System.out.println("Ошибка! Счет не найден или не принадлежит пользователю.");
             return;

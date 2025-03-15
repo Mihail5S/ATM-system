@@ -3,6 +3,7 @@ package ConsoleInterface.Commands;
 import Model.Gender;
 import Model.HairColor;
 import Model.User;
+import Service.UserService;
 import repository.UserRepository;
 
 import java.util.Scanner;
@@ -70,7 +71,7 @@ public class CreateUserCommand implements IConsoleCommand {
         var user = new User(name, login, age, gender, hairColor);
 
         // Добавление пользователя в репозиторий
-        if (userRepository.TryAdd(user)) {
+        if (new UserService(userRepository).TryAddUser(user)) {
             System.out.println("Login:" + user.getLogin());
             System.out.println("Имя:" + user.getName());
             System.out.println("Возраст:" + user.getAge());
