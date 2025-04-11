@@ -1,9 +1,10 @@
 package repository;
 
 import Model.User;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,8 +24,6 @@ import java.util.List;
  */
 public class UserRepository {
 
-    private final HashMap<String, User> users = new HashMap<>();
-
     /**
      * Добавляет нового пользователя в репозиторий.
      * <p>
@@ -35,12 +34,18 @@ public class UserRepository {
      * @return {@code true}, если пользователь был добавлен, {@code false}, если пользователь не был добавлен
      */
     public boolean TryAdd(User user) {
-        if (user == null) {
+        if (user == null) return false;
+
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(user);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
             return false;
         }
-
-        users.put(user.getLogin(), user);
-        return true;
     }
 
     /**
@@ -53,13 +58,53 @@ public class UserRepository {
      * @return {@code true}, если пользователь был удален, {@code false}, если пользователь не был удален
      */
     public boolean TryDelete(String id) {
-        if (id == null) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            User user = session.get(User.class, id);
+            if (user == null) return false;
+
+            transaction = session.beginTransaction();
+
+            Query<User> query = session.createQuery("FROM User", User.class);
+            List<User> allUsers = query.list();
+            for (User u : allUsers) {
+                if (u.getFriends().remove(user)) {
+                    session.update(u);
+                }
+            }
+
+            user.getFriends().clear();
+            session.update(user);
+
+            session.delete(user);
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
             return false;
         }
-
-        users.remove(id);
-        return true;
     }
+
+    public boolean removeFriendDirect(String userLogin, String friendLogin) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction tx = session.beginTransaction();
+            Query<?> query = session.createNativeQuery(
+                    "DELETE FROM user_friends WHERE (user_id = ?1 AND friend_id = ?2) OR (user_id = ?2 AND friend_id = ?1)"
+            );
+            query.setParameter(1, userLogin);
+            query.setParameter(2, friendLogin);
+            query.executeUpdate();
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     /**
      * Находит пользователя по его логину.
@@ -68,7 +113,9 @@ public class UserRepository {
      * @return {@code User} с заданным логином, или {@code null}, если пользователь не найден
      */
     public User findByLogin(String login) {
-        return users.get(login);
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.get(User.class, login);
+        }
     }
 
     /**
@@ -77,7 +124,10 @@ public class UserRepository {
      * @return список логинов всех пользователей
      */
     public List<String> getAllLogins() {
-        return new ArrayList<>(users.keySet());
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<String> query = session.createQuery("SELECT u.login FROM User u", String.class);
+            return query.list();
+        }
     }
 
     /**
@@ -86,6 +136,38 @@ public class UserRepository {
      * @return список всех пользователей
      */
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<User> query = session.createQuery("FROM User", User.class);
+            return query.list();
+        }
     }
+
+    public boolean TryUpdate(User account) {
+        if (account == null || account.getLogin() == null) return false;
+
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            User managedUser = session.get(User.class, account.getLogin());
+            if (managedUser == null) return false;
+
+            managedUser.getFriends().clear();
+
+            for (User friend : account.getFriends()) {
+                User managedFriend = session.get(User.class, friend.getLogin());
+                if (managedFriend != null) {
+                    managedUser.getFriends().add(managedFriend);
+                }
+            }
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

@@ -1,8 +1,9 @@
 package Service;
 
 import Model.User;
+import repository.UserRepository;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Класс {@code FriendService} предоставляет методы для управления списком друзей пользователей.
@@ -22,6 +23,11 @@ import java.util.List;
  */
 public class FriendService {
 
+    private final UserRepository userRepository;
+
+    public FriendService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
     /**
      * Попытка добавить пользователя в друзья.
      * Если один из пользователей равен {@code null}, либо друзья уже добавлены, операция не выполняется.
@@ -34,11 +40,17 @@ public class FriendService {
         if (user == null || friend == null) {
             return false;
         }
-        List<User> friends = user.getFriends();
+
+        // Проверяем, что друзья еще не добавлены
+        if (user.getFriends().contains(friend) || friend.getFriends().contains(user)) {
+            return false;
+        }
+
+        Set<User> friends = user.getFriends();
         if (!friends.contains(friend)) {
             friends.add(friend);
             friend.getFriends().add(user);
-            return true;
+            return userRepository.TryUpdate(user) && userRepository.TryUpdate(friend);
         }
         return false;
     }
@@ -55,9 +67,9 @@ public class FriendService {
         if (user == null || friend == null) {
             return false;
         }
-        List<User> friends = user.getFriends();
+        Set<User> friends = user.getFriends();
         friends.remove(friend);
         friend.getFriends().remove(user);
-        return true;
+        return userRepository.removeFriendDirect(user.getLogin(), friend.getLogin());
     }
 }

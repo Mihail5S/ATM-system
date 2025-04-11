@@ -57,7 +57,8 @@ public class DepositCommand implements IConsoleCommand {
         // Поиск счета по ID
         System.out.print("Введите ID счета: ");
         String accountId = scanner.nextLine();
-        BankAccount account = new BankAccountService(bankAccountRepository).FindById(accountId);
+        BankAccountService bankAccountService = new BankAccountService(bankAccountRepository);
+        BankAccount account = bankAccountService.FindById(accountId);
         if (account == null || !account.getOwnerLogin().equals(login)) {
             System.out.println("Ошибка! Счет не найден или не принадлежит пользователю.");
             return;
@@ -69,7 +70,7 @@ public class DepositCommand implements IConsoleCommand {
         scanner.nextLine(); // Для очистки буфера
 
         // Пополнение счета
-        if (account.TryDeposit(amount)) {
+        if (bankAccountService.TryDeposit(account, amount)) {
             System.out.println("Счет успешно пополнен! Новый баланс: " + account.getBalance());
         } else {
             System.out.println("Ошибка при пополнении.");

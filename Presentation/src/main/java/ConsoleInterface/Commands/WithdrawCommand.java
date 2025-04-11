@@ -59,7 +59,8 @@ public class WithdrawCommand implements IConsoleCommand {
 
         System.out.print("Введите ID счета: ");
         String accountId = scanner.nextLine();
-        BankAccount account = new BankAccountService(bankAccountRepository).FindById(accountId);
+        BankAccountService bankAccountService = new BankAccountService(bankAccountRepository);
+        BankAccount account = bankAccountService.FindById(accountId);
         if (account == null || !account.getOwnerLogin().equals(login)) {
             System.out.println("Ошибка! Счет не найден или не принадлежит пользователю.");
             return;
@@ -69,7 +70,7 @@ public class WithdrawCommand implements IConsoleCommand {
         double amount = scanner.nextDouble();
         scanner.nextLine();
 
-        if (account.TryWithdraw(amount)) {
+        if (bankAccountService.TryWithdraw(account, amount)) {
             System.out.println("Деньги успешно сняты! Новый баланс: " + account.getBalance());
         } else {
             System.out.println("Ошибка при снятии. Проверьте баланс.");

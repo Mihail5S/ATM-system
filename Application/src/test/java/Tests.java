@@ -1,14 +1,17 @@
 import Model.BankAccount;
+import Model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class Tests {
     private BankAccount bankAccount;
+    private User user;
 
     @BeforeEach
     void setUp() {
-        bankAccount = new BankAccount("user123");
+        user = new User();
+        bankAccount = new BankAccount(user);
     }
 
     @Test
