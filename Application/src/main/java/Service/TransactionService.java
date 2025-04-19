@@ -2,8 +2,9 @@ package Service;
 
 import Model.BankAccount;
 import Model.User;
+import repository.BankAccountRepository;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Класс {@code TransactionService} предоставляет методы для обработки переводов между банковскими счетами.
@@ -27,6 +28,13 @@ public class TransactionService {
     private static final double FRIEND_COMMISSION = 0.03;
     private static final double STRANGER_COMMISSION = 0.10;
 
+
+    private final BankAccountRepository bankAccountRepository;
+
+    public TransactionService(BankAccountRepository bankAccountRepository) {
+        this.bankAccountRepository = bankAccountRepository;
+    }
+
     /**
      * Попытка перевода средств между двумя банковскими счетами с учетом комиссии.
      * Если сумма перевода или один из параметров некорректен, операция не выполняется.
@@ -45,6 +53,7 @@ public class TransactionService {
             return false;
         }
 
+
         double commission = CalculateCommission(sender, from, to);
         double totalAmount = amount + amount * commission;
 
@@ -55,7 +64,8 @@ public class TransactionService {
         to.TryDeposit(amount);
         from.addTransaction("Transferred " + amount + " to " + to.getOwnerLogin() + " with commission " + (commission * 100) + "%");
         to.addTransaction("Received " + amount + " from " + from.getOwnerLogin());
-
+        bankAccountRepository.TryUpdate(to);
+        bankAccountRepository.TryUpdate(from);
         return true;
     }
 
@@ -75,7 +85,8 @@ public class TransactionService {
             return BASE_COMMISSION;
         }
 
-        List<User> friends = sender.getFriends();
+
+        Set<User> friends = sender.getFriends();
         for (User friend : friends) {
             if (friend.getLogin().equals(to.getOwnerLogin())) {
                 return FRIEND_COMMISSION;

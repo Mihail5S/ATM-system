@@ -33,7 +33,7 @@ public class TransferCommand implements IConsoleCommand {
     public TransferCommand(BankAccountRepository bankAccountRepository, UserRepository userRepository, Scanner scanner) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
-        this.transactionService = new TransactionService();
+        this.transactionService = new TransactionService(bankAccountRepository);
         this.scanner = scanner;
     }
 

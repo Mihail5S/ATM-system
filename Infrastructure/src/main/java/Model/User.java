@@ -1,7 +1,12 @@
 package Model;
 
+import org.hibernate.annotations.DynamicUpdate;
+
+import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Класс {@code User} представляет пользователя в системе.
@@ -16,14 +21,42 @@ import java.util.List;
  *     user.getFriends(); // Получить список друзей
  * </pre>
  */
+@Entity
+@Table(name = "users")
+@DynamicUpdate
 public class User {
-    private String Login;
-    private String Name;
-    private int Age;
-    private Gender Gender;
-    private HairColor Haircolor;
-    private List<User> Friends;
-    private List<BankAccount> BankAccounts;
+    @Id
+    @Column(name = "id", unique = true, nullable = false)
+    private String login;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "age")
+    private int age;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "haircolor")
+    private HairColor haircolor;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private Set<User> friends;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<BankAccount> bankAccounts;
+
+
+    public User() {
+    }
 
     /**
      * Конструктор для создания нового пользователя.
@@ -35,13 +68,13 @@ public class User {
      * @param haircolor цвет волос пользователя
      */
     public User(String name, String login, int age, Gender gender, HairColor haircolor) {
-        this.Name = name;
-        this.Age = age;
-        this.Gender = gender;
-        this.Haircolor = haircolor;
-        this.Login = login;
-        this.BankAccounts = new ArrayList<>();
-        this.Friends = new ArrayList<>();
+        this.name = name;
+        this.login = login;
+        this.age = age;
+        this.gender = gender;
+        this.haircolor = haircolor;
+        this.bankAccounts = new ArrayList<>();
+        this.friends = new HashSet<User>();
     }
 
     /**
@@ -50,7 +83,7 @@ public class User {
      * @return логин пользователя.
      */
     public String getLogin() {
-        return Login;
+        return login;
     }
 
     /**
@@ -59,7 +92,7 @@ public class User {
      * @return имя пользователя.
      */
     public String getName() {
-        return Name;
+        return name;
     }
 
     /**
@@ -68,7 +101,7 @@ public class User {
      * @return возраст пользователя.
      */
     public int getAge() {
-        return Age;
+        return age;
     }
 
     /**
@@ -77,7 +110,7 @@ public class User {
      * @return пол пользователя.
      */
     public Gender getGender() {
-        return Gender;
+        return gender;
     }
 
     /**
@@ -86,7 +119,7 @@ public class User {
      * @return цвет волос пользователя.
      */
     public HairColor getHaircolor() {
-        return Haircolor;
+        return haircolor;
     }
 
     /**
@@ -94,8 +127,8 @@ public class User {
      *
      * @return список друзей.
      */
-    public List<User> getFriends() {
-        return Friends;
+    public Set<User> getFriends() {
+        return friends;
     }
 
     /**
@@ -104,6 +137,6 @@ public class User {
      * @return список банковских счетов.
      */
     public List<BankAccount> getBankAccounts() {
-        return BankAccounts;
+        return bankAccounts;
     }
 }

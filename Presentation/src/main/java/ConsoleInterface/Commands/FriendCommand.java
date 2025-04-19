@@ -7,6 +7,7 @@ import repository.UserRepository;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Команда для управления списком друзей пользователя.
@@ -27,7 +28,7 @@ public class FriendCommand implements IConsoleCommand {
      */
     public FriendCommand(UserRepository userRepository, Scanner scanner) {
         this.userRepository = userRepository;
-        this.friendService = new FriendService();
+        this.friendService = new FriendService(userRepository);
         this.scanner = scanner;
     }
 
@@ -137,7 +138,7 @@ public class FriendCommand implements IConsoleCommand {
      * @param user пользователь, чьи друзья отображаются
      */
     private void showFriends(User user) {
-        List<User> friends = user.getFriends();
+        Set<User> friends = user.getFriends();
         if (friends.isEmpty()) {
             System.out.println("У вас ещё нет друзей :(");
         } else {
