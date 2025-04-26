@@ -1,35 +1,20 @@
 package Model;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
-/**
- * Класс {@code BankAccount} представляет банковский счет с балансом и историей транзакций.
- * <p>
- * Этот класс позволяет добавлять транзакции, депозировать деньги и снимать средства с баланса.
- * </p>
- * <p>
- * Пример использования:
- * </p>
- * <pre>
- *     BankAccount account = new BankAccount("user123");
- *     account.TryDeposit(1000); // Депозит 1000
- *     account.TryWithdraw(500); // Снятие 500
- * </pre>
- */
 
 @Entity
 @Table(name = "bank_accounts")
 @DynamicUpdate
 public class BankAccount {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
     @Column(name = "balance")
@@ -42,15 +27,14 @@ public class BankAccount {
 
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+
     public BankAccount() {
-        this.id = UUID.randomUUID().toString();
     }
 
     public BankAccount(User owner) {
-        this.id = UUID.randomUUID().toString();
         this.balance = 0;
         this.transactions = new ArrayList<>();
         this.owner = owner;
@@ -61,6 +45,10 @@ public class BankAccount {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
 
     public double getBalance() {
         return balance;
@@ -69,6 +57,10 @@ public class BankAccount {
 
     public String getOwnerLogin() {
         return owner.getLogin();
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
 
