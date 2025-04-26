@@ -17,6 +17,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public boolean TryAddUser(User req) {
         if (req == null) return false;
         User newUser = new User(req.getName(), req.getLogin(), req.getAge(),
@@ -30,6 +31,7 @@ public class UserService {
         return userRepository.findAllWithBankAccounts();
     }
 
+    @Transactional
     public boolean TryDeleteAccount(String login) {
         if (!userRepository.existsById(login)) return false;
         userRepository.deleteById(login);
@@ -38,6 +40,23 @@ public class UserService {
 
     public User FindUserByLogin(String login) {
         return userRepository.findById(login).orElse(null);
+    }
+
+    public List<User> getFilteredUsers(HairColor hairColor, Gender gender) {
+        List<User> users = GetAllUsers();
+
+        if (hairColor != null) {
+            users = users.stream()
+                    .filter(u -> u.getHaircolor() == hairColor)
+                    .toList();
+        }
+        if (gender != null) {
+            users = users.stream()
+                    .filter(u -> u.getGender() == gender)
+                    .toList();
+        }
+
+        return users;
     }
 
     public List<User> GetAllUsers() {

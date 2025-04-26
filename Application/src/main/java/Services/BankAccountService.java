@@ -13,9 +13,8 @@ import java.util.UUID;
 
 @Service
 public class BankAccountService {
-    @Autowired
+
     private BankAccountRepository bankAccountRepository;
-    @Autowired
     private UserRepository userRepository;
 
     public BankAccountService(BankAccountRepository bankAccountRepository, UserRepository userRepository) {

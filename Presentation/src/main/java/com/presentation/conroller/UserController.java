@@ -115,17 +115,11 @@ public class UserController {
     })
     @GetMapping("/filter")
     public ResponseEntity<?> getFilteredUsers(
-            @RequestParam(required = false) HairColor haircolor,
+            @RequestParam(required = false) HairColor hairColor,
             @RequestParam(required = false) Gender gender
     ) {
-        List<User> users = userService.GetAllUsers();
-        if (haircolor != null) {
-            users = users.stream().filter(u -> u.getHaircolor() == haircolor).toList();
-        }
-        if (gender != null) {
-            users = users.stream().filter(u -> u.getGender() == gender).toList();
-        }
-        return ResponseEntity.ok(users.stream().map(UserDTO::toUserDto).toList());
+        List<User> filteredUsers = userService.getFilteredUsers(hairColor, gender);
+        return ResponseEntity.ok(filteredUsers.stream().map(UserDTO::toUserDto).toList());
     }
 
     @Operation(summary = "Добавление друга",

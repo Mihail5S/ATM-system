@@ -28,14 +28,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/accounts")
 @Tag(name = "Управление банковскими счетами", description = "Операции с банковскими счетами")
 public class BankAccountController {
-    @Autowired
+
     private BankAccountService bankAccountService;
 
-    @Autowired
     private TransactionService transactionService;
 
-    @Autowired
     private UserService userService;
+
+    public BankAccountController(BankAccountService bankAccountService,
+                                 TransactionService transactionService,
+                                 UserService userService) {
+        this.bankAccountService = bankAccountService;
+        this.transactionService = transactionService;
+        this.userService = userService;
+
+    }
 
     @Operation(summary = "Создание нового счета",
             description = "Создает новый банковский счет для пользователя")
