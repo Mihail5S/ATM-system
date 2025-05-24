@@ -6,6 +6,7 @@ import org.example.gateway.dto.BalanceDto;
 import org.example.gateway.service.ClientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,23 +30,28 @@ public class ClientController {
         return ResponseEntity.ok(dto);
     }
 
+
     @PostMapping("/accounts")
     public ResponseEntity<String> createMyAccount() {
-        String message = clientService.createMyAccount();
+        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        String message = clientService.createAccountForLogin(myLogin);
         return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
 
 
     @GetMapping("/accounts")
     public ResponseEntity<List<AccountDto>> getMyAccounts() {
-        List<AccountDto> accounts = clientService.getMyAccounts();
+        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<AccountDto> accounts = clientService.getAccountsByLogin(myLogin);
         return ResponseEntity.ok(accounts);
     }
 
 
+
     @GetMapping("/accounts/{accountId}")
     public ResponseEntity<AccountDto> getAccountById(@PathVariable String accountId) {
-        AccountDto account = clientService.getAccountById(accountId);
+        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
+        AccountDto account = clientService.getAccountByIdAndLogin(accountId, myLogin);
         return ResponseEntity.ok(account);
     }
 

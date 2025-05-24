@@ -31,48 +31,44 @@ public class ClientService {
     }
 
 
-    public List<AccountDto> getMyAccounts() {
-        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
+    public List<AccountDto> getAccountsByLogin(String login) {
         List<UserWithAccountsDto> all = userApiClient.getAllUsersWithAccounts();
 
         return all.stream()
-                .filter(uwa -> uwa.getLogin().equals(myLogin))
+                .filter(uwa -> uwa.getLogin().equals(login))
                 .findFirst()
                 .map(UserWithAccountsDto::getAccounts)
                 .orElse(List.of())
                 .stream()
                 .map(ba -> new AccountDto(
                         ba.getId(),
-                        myLogin,
+                        login,
                         ba.getBalance()
                 ))
                 .collect(Collectors.toList());
     }
 
-    public String createMyAccount() {
-        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-        return accountApiClient.createAccountForUser(myLogin);
+
+    public String createAccountForLogin(String login) {
+        return accountApiClient.createAccountForUser(login);
     }
 
-
-    public AccountDto getAccountById(String accountId) {
-        String myLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-
+    public AccountDto getAccountByIdAndLogin(String accountId, String login) {
         return userApiClient.getAllUsersWithAccounts().stream()
-                .filter(uwa -> uwa.getLogin().equals(myLogin))
+                .filter(uwa -> uwa.getLogin().equals(login))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Current user not found in main service"))
+                .orElseThrow(() -> new RuntimeException("User not found: " + login))
                 .getAccounts().stream()
                 .filter(ba -> ba.getId().equals(accountId))
                 .findFirst()
                 .map(ba -> new AccountDto(
                         ba.getId(),
-                        myLogin,
+                        login,
                         ba.getBalance()
                 ))
                 .orElseThrow(() -> new RuntimeException("Account not found: " + accountId));
     }
+
 
 
 

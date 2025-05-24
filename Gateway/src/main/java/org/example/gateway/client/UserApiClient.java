@@ -21,7 +21,7 @@ public class UserApiClient {
         this.userWebClient = userWebClient;
     }
 
-    public String createUser(Object userDto) {
+    public String createUser(UserDto userDto) {
         return userWebClient.post()
                 .uri("/users")
                 .bodyValue(userDto)
