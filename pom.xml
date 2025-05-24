@@ -3,17 +3,18 @@
     <groupId>org.example</groupId>
     <artifactId>Mihail5S</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging> <!-- обязательно для агрегатора :contentReference[oaicite:4]{index=4} -->
+    <packaging>pom</packaging>
     <modules>
         <module>Infrastructure</module>
         <module>Application</module>
         <module>Presentation</module>
+        <module>Gateway</module>
     </modules>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version> <!-- рекомендовано не задавать версии Spring вручную :contentReference[oaicite:5]{index=5} -->
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
