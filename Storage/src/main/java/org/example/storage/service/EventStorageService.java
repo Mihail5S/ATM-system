@@ -8,23 +8,30 @@ import org.example.storage.repository.AccountEventRepository;
 import org.example.storage.repository.ClientEventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventStorageService {
 
-    @Autowired
+
     private ClientEventRepository clientRepo;
 
-    @Autowired
+
     private AccountEventRepository accountRepo;
 
-    @Autowired
+
     private MappingService mappingService;
 
-    @Autowired
+
     private ObjectMapper objectMapper;
+
+    public EventStorageService(ClientEventRepository clientRepo, AccountEventRepository accountRepo, MappingService mappingService, ObjectMapper objectMapper) {
+        this.clientRepo = clientRepo;
+        this.accountRepo = accountRepo;
+        this.mappingService = mappingService;
+        this.objectMapper = objectMapper;
+    }
 
     public void storeClientEvent(ClientEventDto dto) throws JsonProcessingException {
         String payloadJson = objectMapper.writeValueAsString(dto.getPayload());
