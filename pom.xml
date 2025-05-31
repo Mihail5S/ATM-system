@@ -9,6 +9,7 @@
         <module>Application</module>
         <module>Presentation</module>
         <module>Gateway</module>
+        <module>Storage</module>
     </modules>
 
     <parent>
