@@ -2,13 +2,16 @@ package Services;
 
 import Model.BankAccount;
 import Model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import dto.AccountEvent;
+import event.EventPublisher;
 import repository.BankAccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.UserRepository;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -16,10 +19,12 @@ public class BankAccountService {
 
     private BankAccountRepository bankAccountRepository;
     private UserRepository userRepository;
+    private final EventPublisher publisher;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserRepository userRepository) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, UserRepository userRepository , EventPublisher publisher) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -33,6 +38,16 @@ public class BankAccountService {
         user.getBankAccounts().add(account);
         bankAccountRepository.save(account);
         userRepository.save(user);
+        AccountEvent ev = new AccountEvent(
+                account.getId(),
+                "CREATE",
+                Map.of(
+                        "owner", account.getOwnerLogin(),
+                        "balance", account.getBalance()
+                ),
+                Instant.now()
+        );
+        publisher.publishAccountEvent(ev);
         return true;
     }
 
@@ -56,7 +71,21 @@ public class BankAccountService {
         if (account == null || amount <= 0) return false;
 
         boolean success = account.TryDeposit(amount);
-        if (success) bankAccountRepository.save(account);
+        if (success) {
+            bankAccountRepository.save(account);
+
+            AccountEvent ev = new AccountEvent(
+                    account.getId(),
+                    "DEPOSIT",
+                    Map.of(
+                            "amount", amount,
+                            "newBalance", account.getBalance()
+                    ),
+                    Instant.now()
+            );
+            publisher.publishAccountEvent(ev);
+        }
+
         return success;
     }
 
@@ -65,7 +94,20 @@ public class BankAccountService {
         if (account == null || amount <= 0) return false;
 
         boolean success = account.TryWithdraw(amount);
-        if (success) bankAccountRepository.save(account);
+        if (success) {
+            bankAccountRepository.save(account);
+
+            AccountEvent ev = new AccountEvent(
+                    account.getId(),
+                    "WITHDRAW",
+                    Map.of(
+                            "amount", amount,
+                            "newBalance", account.getBalance()
+                    ),
+                    Instant.now()
+            );
+            publisher.publishAccountEvent(ev);
+        }
         return success;
     }
 }
